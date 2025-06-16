@@ -12,6 +12,7 @@ function App() {
       <Route path="/" element={token ? <Dashboard /> : <LandingPage />} />
       <Route path="/login" element={token ? <Navigate to="/" /> : <Login />} />
       <Route path="/register" element={token ? <Navigate to="/" /> : <Register />} />
+      <Route path="/dashboard" element={token ? <Dashboard /> : <Navigate to="/login" />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
