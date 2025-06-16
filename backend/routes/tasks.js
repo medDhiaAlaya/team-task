@@ -6,7 +6,12 @@ const Task = require('../models/Task');
 // Get tasks for logged-in user
 router.get('/', auth, async (req, res) => {
   try {
-    const tasks = await Task.find({ assignedTo: req.user.id }).populate('assignedTo', 'username');
+    let tasks;
+    if (req.user.role === 'manager') {
+      tasks = await Task.find().populate('assignedTo', 'username');
+    } else {
+      tasks = await Task.find({ assignedTo: req.user.id }).populate('assignedTo', 'username');
+    }
     res.json(tasks);
   } catch (err) {
     res.status(500).send('Server error');

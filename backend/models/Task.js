@@ -5,8 +5,8 @@ const taskSchema = new mongoose.Schema({
   description: { type: String },
   status: {
     type: String,
-    enum: ['à faire', 'en cours', 'terminée'],
-    default: 'à faire',
+    enum: ['to do', 'in progress', 'completed'],
+    default: 'to do',
   },
   assignedTo: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
 });

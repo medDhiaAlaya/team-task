@@ -28,7 +28,7 @@ function Register() {
     <div className="container-fluid d-flex align-items-center justify-content-center min-vh-100" style={{ background: 'linear-gradient(135deg, #f8ffae 0%, #43c6ac 100%)' }}>
       <div className="card shadow p-4 border-0" style={{ maxWidth: '450px', width: '100%' }}>
         <div className="text-center mb-4">
-          <img src="/vite.svg" alt="Logo" width="60" className="mb-2" />
+          <img src="src/assets/logo.png" alt="Logo" width="150" className="mb-2" />
           <h3 className="fw-bold">Create an Account</h3>
         </div>
         <form onSubmit={handleSubmit} autoComplete="off">

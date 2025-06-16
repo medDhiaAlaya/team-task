@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { getTasks, createTask, updateTask, deleteTask,getUsers} from '../utils/api';
 import { logout } from '../redux/authSlice';
+import { Modal, Button } from 'react-bootstrap';
 
 function Dashboard() {
   const [tasks, setTasks] = useState([]);
@@ -12,30 +13,31 @@ function Dashboard() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [users, setUsers] = useState([]);
+  const [editTask, setEditTask] = useState(null);
+  const [editForm, setEditForm] = useState({ title: '', description: '', status: 'to do', assignedTo: '' });
 
-
-useEffect(() => {
-  const fetchTasks = async () => {
-    try {
-      const res = await getTasks();
-      setTasks(res.data);
-    } catch (err) {
-      console.error(err);
+  useEffect(() => {
+    const fetchTasks = async () => {
+      try {
+        const res = await getTasks();
+        setTasks(res.data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    const fetchUsers = async () => {
+      try {
+        const res = await getUsers();
+        setUsers(res.data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchTasks();
+    if (user?.role === 'manager') {
+      fetchUsers();
     }
-  };
-  const fetchUsers = async () => {
-    try {
-      const res = await getUsers();
-      setUsers(res.data);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-  fetchTasks();
-  if (user?.role === 'manager') {
-    fetchUsers();
-  }
-}, [user?.role]);
+  }, [user?.role]);
 
   const handleCreate = async (e) => {
     e.preventDefault();
@@ -72,6 +74,30 @@ useEffect(() => {
   };
 
   const filteredTasks = filter === 'all' ? tasks : tasks.filter((task) => task.status === filter);
+
+  const openEditModal = (task) => {
+    setEditTask(task);
+    setEditForm({
+      title: task.title,
+      description: task.description,
+      status: task.status,
+      assignedTo: task.assignedTo?._id || '',
+    });
+  };
+
+  const closeEditModal = () => {
+    setEditTask(null);
+  };
+
+  const handleEditChange = (e) => {
+    setEditForm({ ...editForm, [e.target.name]: e.target.value });
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    await handleUpdate(editTask._id, editForm);
+    closeEditModal();
+  };
 
   return (
     <div className="container-fluid min-vh-100 p-0" style={{ background: 'linear-gradient(135deg, #f8ffae 0%, #43c6ac 100%)' }}>
@@ -150,6 +176,7 @@ useEffect(() => {
                         <span className="badge bg-secondary me-2">Status: {task.status}</span>
                         <span className="badge bg-info text-dark">Assigned To: {task.assignedTo?.username}</span>
                       </div>
+                      
                       {(task.assignedTo?._id === user?.id || user?.role === 'manager') && (
                         <div className="d-flex align-items-center gap-2">
                           <select
@@ -161,6 +188,11 @@ useEffect(() => {
                             <option value="in progress">In Progress</option>
                             <option value="completed">Completed</option>
                           </select>
+                          {user?.role === 'manager' && (
+                        <Button variant="outline-primary" size="sm" onClick={() => openEditModal(task)}>
+                          Edit
+                        </Button>
+                      )}
                           <button className="btn btn-outline-danger btn-sm" onClick={() => handleDelete(task._id)}>Delete</button>
                         </div>
                       )}
@@ -172,6 +204,76 @@ useEffect(() => {
           </div>
         </div>
       </div>
+
+      {/* Edit Task Modal (Manager only) */}
+      <Modal show={!!editTask} onHide={closeEditModal} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Edit Task</Modal.Title>
+        </Modal.Header>
+        <form onSubmit={handleEditSubmit} autoComplete="off">
+          <Modal.Body>
+            <div className="mb-3">
+              <label className="form-label">Title</label>
+              <input
+                type="text"
+                className="form-control"
+                name="title"
+                value={editForm.title}
+                onChange={handleEditChange}
+                required
+              />
+            </div>
+            <div className="mb-3">
+              <label className="form-label">Description</label>
+              <input
+                type="text"
+                className="form-control"
+                name="description"
+                value={editForm.description}
+                onChange={handleEditChange}
+                required
+              />
+            </div>
+            <div className="mb-3">
+              <label className="form-label">Assigned User</label>
+              <select
+                className="form-select"
+                name="assignedTo"
+                value={editForm.assignedTo}
+                onChange={handleEditChange}
+                required
+              >
+                <option value="">Select User</option>
+                {users.filter((u) => u.role === 'user').map((u) => (
+                  <option key={u._id} value={u._id}>{u.username}</option>
+                ))}
+              </select>
+            </div>
+            <div className="mb-3">
+              <label className="form-label">Status</label>
+              <select
+                className="form-select"
+                name="status"
+                value={editForm.status}
+                onChange={handleEditChange}
+                required
+              >
+                <option value="to do">To Do</option>
+                <option value="in progress">In Progress</option>
+                <option value="completed">Completed</option>
+              </select>
+            </div>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={closeEditModal} type="button">
+              Cancel
+            </Button>
+            <Button variant="primary" type="submit">
+              Save Changes
+            </Button>
+          </Modal.Footer>
+        </form>
+      </Modal>
     </div>
   );
 }
