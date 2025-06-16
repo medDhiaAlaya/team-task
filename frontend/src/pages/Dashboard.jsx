@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { getTasks, createTask, updateTask, deleteTask,getUsers} from '../utils/api';
+import { getTasks, createTask, updateTask, deleteTask,getUsers, getCurrentUser} from '../utils/api';
+import { setCredentials } from '../redux/authSlice';
 import { logout } from '../redux/authSlice';
 import { Modal, Button } from 'react-bootstrap';
 
@@ -17,6 +18,12 @@ function Dashboard() {
   const [editForm, setEditForm] = useState({ title: '', description: '', status: 'to do', assignedTo: '' });
 
   useEffect(() => {
+    
+    const fetchCurrentUser = async () => {
+          const res = await getCurrentUser();
+          dispatch(setCredentials({user: res.data.user }));}
+      
+        
     const fetchTasks = async () => {
       try {
         const res = await getTasks();
@@ -33,11 +40,12 @@ function Dashboard() {
         console.error(err);
       }
     };
+    fetchCurrentUser();
     fetchTasks();
     if (user?.role === 'manager') {
       fetchUsers();
     }
-  }, [user?.role]);
+  }, []);
 
   const handleCreate = async (e) => {
     e.preventDefault();
