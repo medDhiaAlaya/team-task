@@ -16,7 +16,7 @@ function Login() {
     try {
       const res = await login(formData);
       dispatch(setCredentials({ token: res.data.token, user: res.data.user }));
-      navigate('/dashboard');
+      document.location.href = "/"
     } catch (err) {
       setError('Invalid username or password');
     }

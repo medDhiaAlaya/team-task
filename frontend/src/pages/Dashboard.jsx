@@ -1,33 +1,49 @@
-import { useEffect, useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import { getTasks, createTask, updateTask, deleteTask,getUsers, getCurrentUser} from '../utils/api';
-import { setCredentials } from '../redux/authSlice';
-import { logout } from '../redux/authSlice';
-import { Modal, Button } from 'react-bootstrap';
+import { useEffect, useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import {
+  getTasks,
+  createTask,
+  updateTask,
+  deleteTask,
+  getUsers,
+  getCurrentUser,
+} from "../utils/api";
+import { setCredentials } from "../redux/authSlice";
+import { logout } from "../redux/authSlice";
+import { Modal, Button } from "react-bootstrap";
+import { setTasks } from "../redux/taskSlice";
 
 function Dashboard() {
-  const [tasks, setTasks] = useState([]);
-  const [newTask, setNewTask] = useState({ title: '', description: '', status: 'to do', assignedTo: '' });
-  const [filter, setFilter] = useState('all');
+  const { tasks } = useSelector((state) => state.task);
+  const [newTask, setNewTask] = useState({
+    title: "",
+    description: "",
+    status: "to do",
+    assignedTo: "",
+  });
+  const [filter, setFilter] = useState("all");
   const { token, user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [editTask, setEditTask] = useState(null);
-  const [editForm, setEditForm] = useState({ title: '', description: '', status: 'to do', assignedTo: '' });
+  const [editForm, setEditForm] = useState({
+    title: "",
+    description: "",
+    status: "to do",
+    assignedTo: "",
+  });
 
   useEffect(() => {
-    
     const fetchCurrentUser = async () => {
-          const res = await getCurrentUser();
-          dispatch(setCredentials({user: res.data.user }));}
-      
-        
+      const res = await getCurrentUser();
+      dispatch(setCredentials({ user: res.data.user }));
+    };
+
     const fetchTasks = async () => {
       try {
         const res = await getTasks();
-        setTasks(res.data);
+        dispatch(setTasks({ tasks: res.data }));
       } catch (err) {
         console.error(err);
       }
@@ -42,7 +58,7 @@ function Dashboard() {
     };
     fetchCurrentUser();
     fetchTasks();
-    if (user?.role === 'manager') {
+    if (user?.role === "manager") {
       fetchUsers();
     }
   }, []);
@@ -51,8 +67,13 @@ function Dashboard() {
     e.preventDefault();
     try {
       const res = await createTask(newTask);
-      setTasks([...tasks, res.data]);
-      setNewTask({ title: '', description: '', status: 'to do', assignedTo: '' });
+      dispatch(setTasks({ tasks: [...tasks, res.data] }));
+      setNewTask({
+        title: "",
+        description: "",
+        status: "to do",
+        assignedTo: "",
+      });
     } catch (err) {
       console.error(err);
     }
@@ -61,7 +82,9 @@ function Dashboard() {
   const handleUpdate = async (id, updates) => {
     try {
       const res = await updateTask(id, updates);
-      setTasks(tasks.map((task) => (task._id === id ? res.data : task)));
+      dispatch(setTasks({
+        tasks: tasks.map((task) => (task._id === id ? res.data : task)),
+      }));
     } catch (err) {
       console.error(err);
     }
@@ -70,7 +93,7 @@ function Dashboard() {
   const handleDelete = async (id) => {
     try {
       await deleteTask(id);
-      setTasks(tasks.filter((task) => task._id !== id));
+      dispatch(setTasks({ tasks: tasks.filter((task) => task._id !== id) }));
     } catch (err) {
       console.error(err);
     }
@@ -78,10 +101,11 @@ function Dashboard() {
 
   const handleLogout = () => {
     dispatch(logout());
-    navigate('/login');
+    document.location.href = "/login";
   };
 
-  const filteredTasks = filter === 'all' ? tasks : tasks.filter((task) => task.status === filter);
+  const filteredTasks =
+    filter === "all" ? tasks : tasks.filter((task) => task.status === filter);
 
   const openEditModal = (task) => {
     setEditTask(task);
@@ -89,7 +113,7 @@ function Dashboard() {
       title: task.title,
       description: task.description,
       status: task.status,
-      assignedTo: task.assignedTo?._id || '',
+      assignedTo: task.assignedTo?._id || "",
     });
   };
 
@@ -108,12 +132,24 @@ function Dashboard() {
   };
 
   return (
-    <div className="container-fluid min-vh-100 p-0" style={{ background: 'linear-gradient(135deg, #f8ffae 0%, #43c6ac 100%)' }}>
+    <div
+      className="container-fluid min-vh-100 p-0"
+      style={{
+        background: "linear-gradient(135deg, #f8ffae 0%, #43c6ac 100%)",
+      }}
+    >
       <nav className="navbar navbar-expand-lg navbar-light bg-white shadow-sm px-4">
         <span className="navbar-brand fw-bold">TeamTask</span>
         <div className="ms-auto">
-          <span className="me-3">{user?.username} ({user?.role})</span>
-          <button className="btn btn-outline-danger btn-sm" onClick={handleLogout}>Logout</button>
+          <span className="me-3">
+            {user?.username} ({user?.role})
+          </span>
+          <button
+            className="btn btn-outline-danger btn-sm"
+            onClick={handleLogout}
+          >
+            Logout
+          </button>
         </div>
       </nav>
       <div className="container py-5">
@@ -124,7 +160,10 @@ function Dashboard() {
                 <h2 className="fw-bold mb-0">Dashboard</h2>
                 <div>
                   <label className="me-2">Filter by Status:</label>
-                  <select className="form-select d-inline-block w-auto" onChange={(e) => setFilter(e.target.value)}>
+                  <select
+                    className="form-select d-inline-block w-auto"
+                    onChange={(e) => setFilter(e.target.value)}
+                  >
                     <option value="all">All</option>
                     <option value="to do">To Do</option>
                     <option value="in progress">In Progress</option>
@@ -132,14 +171,19 @@ function Dashboard() {
                   </select>
                 </div>
               </div>
-              {user?.role === 'manager' && (
-                <form className="row g-2 align-items-end mb-4" onSubmit={handleCreate}>
+              {user?.role === "manager" && (
+                <form
+                  className="row g-2 align-items-end mb-4"
+                  onSubmit={handleCreate}
+                >
                   <div className="col-md-3">
                     <input
                       type="text"
                       className="form-control"
                       value={newTask.title}
-                      onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
+                      onChange={(e) =>
+                        setNewTask({ ...newTask, title: e.target.value })
+                      }
                       placeholder="Task Title"
                       required
                     />
@@ -149,7 +193,9 @@ function Dashboard() {
                       type="text"
                       className="form-control"
                       value={newTask.description}
-                      onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
+                      onChange={(e) =>
+                        setNewTask({ ...newTask, description: e.target.value })
+                      }
                       placeholder="Task Description"
                       required
                     />
@@ -158,52 +204,75 @@ function Dashboard() {
                     <select
                       className="form-select"
                       value={newTask.assignedTo}
-                      onChange={(e) => setNewTask({ ...newTask, assignedTo: e.target.value })}
+                      onChange={(e) =>
+                        setNewTask({ ...newTask, assignedTo: e.target.value })
+                      }
                       required
                     >
                       <option value="">Select User</option>
-                      {users.filter((u) => u.role === 'user').map((u) => (
-                        <option key={u._id} value={u._id}>
-                          {u.username}
-                        </option>
-                      ))}
+                      {users
+                        .filter((u) => u.role === "user")
+                        .map((u) => (
+                          <option key={u._id} value={u._id}>
+                            {u.username}
+                          </option>
+                        ))}
                     </select>
                   </div>
                   <div className="col-md-2 d-grid">
-                    <button type="submit" className="btn btn-success">Create Task</button>
+                    <button type="submit" className="btn btn-success">
+                      Create Task
+                    </button>
                   </div>
                 </form>
               )}
               <ul className="list-group">
                 {filteredTasks.map((task) => (
-                  <li key={task._id} className="list-group-item mb-3 rounded shadow-sm">
+                  <li
+                    key={task._id}
+                    className="list-group-item mb-3 rounded shadow-sm"
+                  >
                     <div className="d-flex justify-content-between align-items-center">
                       <div>
                         <h5 className="mb-1 fw-bold">{task.title}</h5>
                         <p className="mb-1">{task.description}</p>
-                        <span className="badge bg-secondary me-2">Status: {task.status}</span>
-                        <span className="badge bg-info text-dark">Assigned To: {task.assignedTo?.username}</span>
+                        <span className="badge bg-secondary me-2">
+                          Status: {task.status}
+                        </span>
+                        <span className="badge bg-info text-dark">
+                          Assigned To: {task.assignedTo?.username}
+                        </span>
                       </div>
-                      
-                      {(task.assignedTo?._id === user?.id || user?.role === 'manager') && (
-                        <div className="d-flex align-items-center gap-2">
-                          <select
-                            className="form-select form-select-sm me-2"
-                            value={task.status}
-                            onChange={(e) => handleUpdate(task._id, { status: e.target.value })}
-                          >
-                            <option value="to do">To Do</option>
-                            <option value="in progress">In Progress</option>
-                            <option value="completed">Completed</option>
-                          </select>
-                          {user?.role === 'manager' && (
-                        <Button variant="outline-primary" size="sm" onClick={() => openEditModal(task)}>
-                          Edit
-                        </Button>
-                      )}
-                          <button className="btn btn-outline-danger btn-sm" onClick={() => handleDelete(task._id)}>Delete</button>
-                        </div>
-                      )}
+                      <div className="d-flex align-items-center gap-2">
+                        <select
+                          className="form-select form-select-sm me-2"
+                          value={task.status}
+                          onChange={(e) =>
+                            handleUpdate(task._id, { status: e.target.value })
+                          }
+                        >
+                          <option value="to do">To Do</option>
+                          <option value="in progress">In Progress</option>
+                          <option value="completed">Completed</option>
+                        </select>
+                        {user?.role === "manager" && (
+                          <>
+                            <Button
+                              variant="outline-primary"
+                              size="sm"
+                              onClick={() => openEditModal(task)}
+                            >
+                              Edit
+                            </Button>
+                            <button
+                              className="btn btn-outline-danger btn-sm"
+                              onClick={() => handleDelete(task._id)}
+                            >
+                              Delete
+                            </button>
+                          </>
+                        )}
+                      </div>
                     </div>
                   </li>
                 ))}
@@ -252,9 +321,13 @@ function Dashboard() {
                 required
               >
                 <option value="">Select User</option>
-                {users.filter((u) => u.role === 'user').map((u) => (
-                  <option key={u._id} value={u._id}>{u.username}</option>
-                ))}
+                {users
+                  .filter((u) => u.role === "user")
+                  .map((u) => (
+                    <option key={u._id} value={u._id}>
+                      {u.username}
+                    </option>
+                  ))}
               </select>
             </div>
             <div className="mb-3">
