@@ -1,8 +1,25 @@
 # TeamTask
 
-![Dashboard](dashboard.png)
+![Landing Page](home.png)
+<p align="center"><em>Landing page: Welcome and entry point for users</em></p>
+
 ![Login](login.png)
+<p align="center"><em>Login page: Secure user authentication</em></p>
+
 ![Register](register.png)
+<p align="center"><em>Register page: Create a new account as user or manager</em></p>
+
+![Dashboard](dashboard.png)
+<p align="center"><em>Dashboard: View, manage, and track tasks</em></p>
+
+![Edit](edit.png)
+<p align="center"><em>Edit Task: Managers can edit task details in a modal</em></p>
+
+![Not found Page](found.png)
+<p align="center"><em>Not Found: Custom 404 page for invalid routes</em></p>
+
+
+
 
 TeamTask is a modern, full-stack task management application for teams. It features user authentication, role-based access (manager/user), task assignment, and a responsive, user-friendly interface.
 
