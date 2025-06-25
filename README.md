@@ -1,5 +1,8 @@
 # TeamTask
 
+[![CI/CD Pipeline](https://github.com/medDhiaAlaya/teamtask/actions/workflows/basic-ci.yml/badge.svg)](https://github.com/medDhiaAlaya/teamtask/actions)
+[![Docker Build](https://github.com/medDhiaAlaya/teamtask/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/medDhiaAlaya/teamtask/actions)
+
 ![Landing Page](home.png)
 <p align="center"><em>Landing page: Welcome and entry point for users</em></p>
 

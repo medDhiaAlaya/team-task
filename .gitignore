@@ -112,3 +112,12 @@ mongo-data/
 
 # System files
 .fuse_hidden*
+
+# GitHub Actions
+.github/secrets.yml
+act_secrets
+
+# CI/CD
+.env.ci
+.env.staging
+.env.production
