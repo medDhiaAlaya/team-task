@@ -139,6 +139,11 @@ deploy-testing:
 
 ### Common Issues
 
+**"Invalid workflow file" / "Unrecognized named-value: 'secrets'"**
+- This was fixed in the latest version
+- Ensure you're using the updated workflow files
+- The issue was with secret condition syntax - now properly handled
+
 **"SSH Permission Denied"**
 - Verify SSH key format (use `-----BEGIN OPENSSH PRIVATE KEY-----`)
 - Ensure public key is in server's `~/.ssh/authorized_keys`
@@ -152,6 +157,14 @@ deploy-testing:
 - Check Node.js version compatibility
 - Verify package.json scripts exist
 - Review workflow logs in GitHub Actions tab
+
+### Workflow Validation
+If you encounter workflow syntax errors:
+```bash
+# Use GitHub CLI to validate workflows locally
+gh workflow list
+gh workflow view ci-cd.yml
+```
 
 ### Testing Locally
 Use [act](https://github.com/nektos/act) to test workflows locally:

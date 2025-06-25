@@ -181,4 +181,6 @@ jobs:
         status: ${{ job.status }}
         channel: '#deployments'
         webhook_url: ${{ secrets.SLACK_WEBHOOK }}
-      if: always() && secrets.SLACK_WEBHOOK != ''
+      if: always() && env.SLACK_WEBHOOK != ''
+      env:
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
