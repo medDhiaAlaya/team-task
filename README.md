@@ -38,9 +38,39 @@ teamtask/
 ├── frontend/        # React + Bootstrap client
 ```
 
-## Getting Started
+## Quick Start with Docker (Recommended)
 
-### Backend
+1. **Clone the repository:**
+   ```bash
+   git clone <repository-url>
+   cd teamtask
+   ```
+
+2. **One-command deployment:**
+   ```bash
+   ./deploy.sh
+   ```
+   This script will create `.env` from template, build, and start all services.
+
+3. **Manual deployment:**
+   ```bash
+   # Create environment file
+   cp .env.example .env
+   # Edit .env with your preferred values (or use defaults)
+   
+   # Start the application
+   docker compose up --build -d
+   ```
+
+4. **Access the application:**
+   - Frontend: http://localhost
+   - Backend API: http://localhost/api
+
+### Development Setup
+
+If you prefer to run services individually:
+
+#### Backend
 1. `cd backend`
 2. `npm install`
 3. Create a `.env` file with your MongoDB URI and JWT secret:
@@ -50,15 +80,56 @@ teamtask/
    ```
 4. `npm start`
 
-### Frontend
+#### Frontend
 1. `cd frontend`
 2. `npm install`
 3. `npm run dev`
 
+## Production Deployment
+
+The application is production-ready with:
+- **Docker Compose**: Multi-service orchestration
+- **Nginx**: Reverse proxy, static file serving, security headers
+- **MongoDB**: Persistent data storage with authentication
+- **Health checks**: Service monitoring and auto-restart
+- **Rate limiting**: API protection against abuse
+- **SSL ready**: Uncomment SSL sections in nginx config
+
+### Production Commands
+```bash
+# Build and start all services
+docker-compose up -d --build
+
+# View logs
+docker-compose logs -f
+
+# Stop services
+docker-compose down
+
+# Stop and remove volumes (⚠️ deletes data)
+docker-compose down -v
+```
+
 ## Usage
-- Visit `http://localhost:5173` (or the port shown in your terminal)
+- Visit http://localhost (Docker) or http://localhost:5173 (development)
 - Register as a user or manager
 - Managers can assign tasks to users
 - Users can update the status of their tasks
+
+## Architecture
+
+- **Frontend**: React + Bootstrap + Vite (served by Nginx in production)
+- **Backend**: Node.js + Express + JWT authentication
+- **Database**: MongoDB with authentication
+- **Reverse Proxy**: Nginx with security headers and rate limiting
+- **Containerization**: Docker with multi-stage builds
+
+## Environment Variables
+
+See `.env.example` for all available configuration options:
+- `MONGO_ROOT_USER`: MongoDB admin username
+- `MONGO_ROOT_PASSWORD`: MongoDB admin password  
+- `JWT_SECRET`: Secret key for JWT tokens
+- Database and connection settings
 
 

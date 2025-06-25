@@ -33,11 +33,14 @@ function Dashboard() {
     status: "to do",
     assignedTo: "",
   });
-
   useEffect(() => {
     const fetchCurrentUser = async () => {
-      const res = await getCurrentUser();
-      dispatch(setCredentials({ user: res.data.user }));
+      try {
+        const res = await getCurrentUser();
+        dispatch(setCredentials({ user: res.data.user }));
+      } catch (err) {
+        console.error('Error fetching current user:', err);
+      }
     };
 
     const fetchTasks = async () => {
@@ -45,23 +48,29 @@ function Dashboard() {
         const res = await getTasks();
         dispatch(setTasks({ tasks: res.data }));
       } catch (err) {
-        console.error(err);
+        console.error('Error fetching tasks:', err);
       }
     };
+
+    fetchCurrentUser();
+    fetchTasks();
+  }, []);
+
+  // Separate useEffect for fetching users when user role is available
+  useEffect(() => {
     const fetchUsers = async () => {
       try {
         const res = await getUsers();
         setUsers(res.data);
       } catch (err) {
-        console.error(err);
+        console.error('Error fetching users:', err);
       }
     };
-    fetchCurrentUser();
-    fetchTasks();
+
     if (user?.role === "manager") {
       fetchUsers();
     }
-  }, []);
+  }, [user]); // This runs when user data changes
 
   const handleCreate = async (e) => {
     e.preventDefault();

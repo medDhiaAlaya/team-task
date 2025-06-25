@@ -12,12 +12,12 @@ const {
 router.get("/", auth, getCurrentUserTasks);
 
 // Create task (manager only)
-router.post("/", auth, checkRoles(["admin"]), createTask);
+router.post("/", auth, checkRoles(["manager"]), createTask);
 
 // Update task
 router.put("/:id", auth, updateTask);
 
-// Delete task
-router.delete("/:id", auth, deleteTask);
+// Delete task (manager only)
+router.delete("/:id", auth, checkRoles(["manager"]), deleteTask);
 
 module.exports = router;
